@@ -39,6 +39,7 @@ int main (int argc, char **argv) {
     window = screen.data->root;
     width_in_pixels = screen.data->width_in_pixels;
     height_in_pixels = screen.data->height_in_pixels;
+    keysyms = xcb_key_symbols_alloc(con);
 
     // TODO add atoms
 
@@ -82,6 +83,7 @@ int main (int argc, char **argv) {
     }
 
     // end wm, disconect server
+    xcb_key_symbols_free(keysyms);
     xcb_disconnect(con);
     printf("byebye!\n");
     return 0;
