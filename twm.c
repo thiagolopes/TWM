@@ -7,16 +7,17 @@
 
 #define XCB_EVENT_BIT_MASK ~0x80
 
+int new_process(char *programm);
+
+xcb_connection_t *con;
+xcb_screen_iterator_t screen;
+xcb_window_t window;
+unsigned short width_in_pixels, height_in_pixels;
+xcb_generic_event_t *ev;
+
 
 int main (int argc, char **argv) {
     printf("hello, twm starts\n");
-
-    /* basic xcb vars */
-    xcb_connection_t *con;
-    xcb_screen_iterator_t screen;
-    xcb_window_t window;
-    unsigned short width_in_pixels, height_in_pixels;
-    xcb_generic_event_t *ev;
 
     con = xcb_connect(NULL, NULL);
     if (xcb_connection_has_error(con)) {
