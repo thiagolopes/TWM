@@ -1,19 +1,29 @@
 #include <err.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
+#include <xcb/xcb_keysyms.h>
 
 #define XCB_EVENT_BIT_MASK ~0x80
-
-int new_process(char *programm);
 
 xcb_connection_t *con;
 xcb_screen_iterator_t screen;
 xcb_window_t window;
 unsigned short width_in_pixels, height_in_pixels;
 xcb_generic_event_t *ev;
+xcb_key_symbols_t *keysyms;
+uint32_t masks[] = {
+    /* these only one window can have (the window manager).
+       if a error occurs to set, other window manager are running.*/
+    XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+    XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE
+};
+
+
+int new_process(char *programm);
 
 
 int main (int argc, char **argv) {
@@ -29,18 +39,27 @@ int main (int argc, char **argv) {
     width_in_pixels = screen.data->width_in_pixels;
     height_in_pixels = screen.data->height_in_pixels;
 
-    /* TODO add atoms */
+    // TODO add atoms
 
-    /* xcb_grab_key grab keys from window manager */
+    /* :XCB_CW_EVENT_MASK:
+       The event-mask defines which events the
+       client is interested in for this window
+       (or for some event types, inferiors of the window). */
+    xcb_change_window_attributes(con, window, XCB_CW_EVENT_MASK, masks);
+
+    // remove all key events
+    xcb_ungrab_key(con, XCB_GRAB_ANY, window, XCB_MOD_MASK_ANY);
+
+    /* //xcb_grab_key grab keys from window manager
     xcb_grab_key(con, 1, window, XCB_MOD_MASK_ANY, XCB_GRAB_ANY,
-                 XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+                 XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC); */
 
-    /* xcb_grab_button grab button from a window  */
-    xcb_grab_button(con, 0, window, XCB_EVENT_MASK_BUTTON_PRESS |
-                    XCB_EVENT_MASK_BUTTON_RELEASE, XCB_GRAB_MODE_ASYNC,
-                    XCB_GRAB_MODE_ASYNC, window, XCB_NONE, 1, XCB_MOD_MASK_1);
+    /* // xcb_grab_button grab button from a window
+       xcb_grab_button(con, 0, window, XCB_EVENT_MASK_BUTTON_PRESS |
+                       XCB_EVENT_MASK_BUTTON_RELEASE, XCB_GRAB_MODE_ASYNC,
+    	               XCB_GRAB_MODE_ASYNC, window, XCB_NONE, 1, XCB_MOD_MASK_1); */
 
-    /* sync to applay */
+    // sync to applay
     xcb_flush(con);
 
     while((ev = xcb_wait_for_event(con))) {
@@ -61,22 +80,22 @@ int main (int argc, char **argv) {
         }
     }
 
-    /* end wm, disconect server */
+    // end wm, disconect server
     xcb_disconnect(con);
     printf("byebye!\n");
     return 0;
 }
 
 int new_process(char* programm) {
-    /* create a new process based in programm name in PATH */
+    // create a new process based in programm name in PATH
     pid_t pid, sid;
     pid = fork();
 
     if (pid == -1) {
-        /* error */
+        // error
         errx(1, "error to get fork: %s, pid: %d", programm, getpid());
     } else if (pid == 0) {
-        /* child process */
+        // child process
         sid = setsid();
         if (sid == -1) {
             errx(1, "error to set sid, pid: %d", pid);
@@ -85,7 +104,7 @@ int new_process(char* programm) {
         if(execlp(programm, programm, NULL) == -1) {
             errx(1, "error to exec new program");
         }
-	_exit(0);
+        _exit(0);
     }
     return 0;
 }
