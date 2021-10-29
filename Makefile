@@ -1,5 +1,5 @@
-CFLAGS?=-Wall -O2 -std=c99 -pedantic
-LIBS?= -lxcb
+CFLAGS?=-Wall -g -O0 -std=c99 -pedantic
+LIBS?=-lX11 -lxcb
 
 
 compile:
