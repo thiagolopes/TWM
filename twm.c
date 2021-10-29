@@ -1,13 +1,14 @@
+#include <X11/keysym.h>
 #include <err.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <xcb/xcb.h>
+#include <xcb/xcb_event.h>
 #include <xcb/xproto.h>
 #include <xcb/xcb_keysyms.h>
-
-#define XCB_EVENT_BIT_MASK ~0x80
+#include <xcb/xcb_util.h>
 
 xcb_connection_t *con;
 xcb_screen_iterator_t screen;
@@ -63,7 +64,7 @@ int main (int argc, char **argv) {
     xcb_flush(con);
 
     while((ev = xcb_wait_for_event(con))) {
-        switch (ev->response_type & XCB_EVENT_BIT_MASK) {
+        switch (XCB_EVENT_RESPONSE_TYPE(ev)) {
         case XCB_KEY_RELEASE: {
             xcb_key_press_event_t *kev = (xcb_key_press_event_t*) ev;
 
