@@ -85,6 +85,7 @@ int new_process(char* programm) {
         if(execlp(programm, programm, NULL) == -1) {
             errx(1, "error to exec new program");
         }
+	_exit(0);
     }
     return 0;
 }
