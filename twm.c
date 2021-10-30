@@ -147,6 +147,7 @@ int new_process(char* programm) {
             errx(1, "error to exec new program");
         }
         _exit(0);
+        wait(NULL);
     }
     return 0;
 }
