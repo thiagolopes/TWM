@@ -32,8 +32,8 @@ uint32_t masks[] = {
     XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE};
 
 int new_process(char *programm);
-void key_press_process(xcb_key_press_event_t *ev);
-void map_request_process(xcb_map_request_event_t *mrev);
+void key_press_handler(xcb_key_press_event_t *ev);
+void map_request_handler(xcb_map_request_event_t *mrev);
 
 int main(int argc, char **argv) {
   printf("hello, twm starts\n");
@@ -85,12 +85,12 @@ int main(int argc, char **argv) {
     switch (XCB_EVENT_RESPONSE_TYPE(ev)) {
     case XCB_KEY_PRESS: {
       xcb_key_press_event_t *kev = (xcb_key_press_event_t *)ev;
-      key_press_process(kev);
+      key_press_handler(kev);
     }
 
     case XCB_MAP_REQUEST: {
       xcb_map_request_event_t *mrev = (xcb_map_request_event_t *)ev;
-      map_request_process(mrev);
+      map_request_handler(mrev);
     }
     }
   }
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
   exit(0);
 }
 
-void map_request_process(xcb_map_request_event_t *mrev) {
+void map_request_handler(xcb_map_request_event_t *mrev) {
   // masks to enable focus and mouse focus to window
   uint32_t values[] = {XCB_EVENT_MASK_ENTER_WINDOW |
                        XCB_EVENT_MASK_FOCUS_CHANGE};
@@ -112,7 +112,7 @@ void map_request_process(xcb_map_request_event_t *mrev) {
   xcb_flush(con);
 }
 
-void key_press_process(xcb_key_press_event_t *kev) {
+void key_press_handler(xcb_key_press_event_t *kev) {
   /*
     key->detail = key pressed
     key->state = Mod combination
