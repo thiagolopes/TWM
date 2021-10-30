@@ -10,6 +10,8 @@
 #include <xcb/xcb_keysyms.h>
 #include <xcb/xproto.h>
 
+#define LEN(x) sizeof(x) / sizeof(*x)
+
 #define TERMINAL "st"
 #define APPLICATIONS_MENU "dmenu_run"
 
@@ -30,6 +32,11 @@ uint32_t masks[] = {
        if a error occurs to set, other window manager are running.*/
     XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
     XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE};
+
+struct Keybind {
+  xcb_mod_mask_t modifiers;
+  xcb_keycode_t *key;
+} Keybind;
 
 int new_process(char *programm);
 void key_press_handler(xcb_key_press_event_t *ev);
@@ -62,17 +69,18 @@ int main(int argc, char **argv) {
 
   /* subscribe new keys.
      all keycodes needed to subscribe */
-  xcb_keycode_t *XK_Return_KC = xcb_key_symbols_get_keycode(keysyms, XK_Return);
-  xcb_keycode_t *XK_d_KC = xcb_key_symbols_get_keycode(keysyms, XK_d);
-  xcb_keycode_t *XK_q_KC = xcb_key_symbols_get_keycode(keysyms, XK_q);
+  struct Keybind keybinds[] = {
+      {META_MASK,
+       xcb_key_symbols_get_keycode(keysyms, XK_Return)},       // meta+Return
+      {META_MASK, xcb_key_symbols_get_keycode(keysyms, XK_d)}, // meta+d
+      {META_MASK | SHIFT_MASK,
+       xcb_key_symbols_get_keycode(keysyms, XK_q)}, // meta+shift+q
+  };
 
-  // TODO refactor to generate from a config
-  xcb_grab_key(con, 1, window, META_MASK, *XK_Return_KC, // meta+Return
-               XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
-  xcb_grab_key(con, 1, window, META_MASK, *XK_d_KC, // meta+d
-               XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
-  xcb_grab_key(con, 1, window, META_MASK | SHIFT_MASK, *XK_q_KC, // meta+shift+q
-               XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+  for (int k = 0; k < LEN(keybinds); ++k) {
+    xcb_grab_key(con, 1, window, keybinds[k].modifiers, *keybinds[k].key,
+                 XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+  }
 
   // sync to applay
   xcb_flush(con);
