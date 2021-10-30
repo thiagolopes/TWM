@@ -33,6 +33,8 @@ uint32_t masks[] = {
 
 
 int new_process(char *programm);
+void key_press_process(xcb_key_press_event_t *ev);
+void map_request_process(xcb_map_request_event_t *mrev);
 
 
 int main (int argc, char **argv) {
