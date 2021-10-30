@@ -18,10 +18,11 @@
 #define SHIFT_MASK XCB_MOD_MASK_SHIFT
 #define CONTROL XCB_MOD_MASK_CONTROL
 
+int run;
+unsigned short width_in_pixels, height_in_pixels;
 xcb_connection_t *con;
 xcb_screen_iterator_t screen;
 xcb_window_t window;
-unsigned short width_in_pixels, height_in_pixels;
 xcb_generic_event_t *ev;
 xcb_key_symbols_t *keysyms;
 uint32_t masks[] = {
@@ -63,22 +64,30 @@ int main(int argc, char **argv) {
      all keycodes needed to subscribe */
   xcb_keycode_t *XK_Return_KC = xcb_key_symbols_get_keycode(keysyms, XK_Return);
   xcb_keycode_t *XK_d_KC = xcb_key_symbols_get_keycode(keysyms, XK_d);
+  xcb_keycode_t *XK_q_KC = xcb_key_symbols_get_keycode(keysyms, XK_q);
 
+  // TODO refactor to generate from a config
   xcb_grab_key(con, 1, window, META_MASK, *XK_Return_KC, // meta+Return
                XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
   xcb_grab_key(con, 1, window, META_MASK, *XK_d_KC, // meta+d
+               XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+  xcb_grab_key(con, 1, window, META_MASK | SHIFT_MASK, *XK_q_KC, // meta+shift+q
                XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
 
   // sync to applay
   xcb_flush(con);
 
-  while ((ev = xcb_wait_for_event(con))) {
+  run = 1;
+  while (run) {
+    ev = xcb_wait_for_event(con);
     printf("event: %s\n", xcb_event_get_label(ev->response_type));
+
     switch (XCB_EVENT_RESPONSE_TYPE(ev)) {
     case XCB_KEY_PRESS: {
       xcb_key_press_event_t *kev = (xcb_key_press_event_t *)ev;
       key_press_process(kev);
     }
+
     case XCB_MAP_REQUEST: {
       xcb_map_request_event_t *mrev = (xcb_map_request_event_t *)ev;
       map_request_process(mrev);
@@ -90,7 +99,7 @@ int main(int argc, char **argv) {
   xcb_key_symbols_free(keysyms);
   xcb_disconnect(con);
   printf("byebye!\n");
-  return 0;
+  exit(0);
 }
 
 void map_request_process(xcb_map_request_event_t *mrev) {
@@ -112,6 +121,7 @@ void key_press_process(xcb_key_press_event_t *kev) {
   xcb_keysym_t keysym = xcb_key_symbols_get_keysym(keysyms, keycode, 0);
 
   switch (kev->state) {
+  // TODO refactor to generate from a config (2)
   case META_MASK:
     switch (keysym) {
     case XK_Return:
@@ -122,6 +132,12 @@ void key_press_process(xcb_key_press_event_t *kev) {
       break;
     }
     break;
+
+  case META_MASK | SHIFT_MASK:
+    switch (keysym) {
+    case XK_q:
+      run = 0;
+    }
   }
 }
 
