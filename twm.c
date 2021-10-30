@@ -1,14 +1,22 @@
-#include <X11/keysym.h>
 #include <err.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_event.h>
-#include <xcb/xproto.h>
 #include <xcb/xcb_keysyms.h>
-#include <xcb/xcb_util.h>
+#include <X11/keysym.h>
+#include <xcb/xproto.h>
+
+#define TERMINAL "st"
+#define APPLICATIONS_MENU "dmenu_run"
+
+#define META_MASK XCB_MOD_MASK_4
+#define ALT_MASK XCB_MOD_MASK_1
+#define SHIFT_MASK XCB_MOD_MASK_SHIFT
+#define CONTROL XCB_MOD_MASK_CONTROL
 
 xcb_connection_t *con;
 xcb_screen_iterator_t screen;
