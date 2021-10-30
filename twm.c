@@ -62,32 +62,29 @@ int main (int argc, char **argv) {
     // remove all key events
     xcb_ungrab_key(con, XCB_GRAB_ANY, window, XCB_MOD_MASK_ANY);
 
-    /* //xcb_grab_key grab keys from window manager
-    xcb_grab_key(con, 1, window, XCB_MOD_MASK_ANY, XCB_GRAB_ANY,
-                 XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC); */
+    /* subscribe new keys.
+       all keycodes needed to subscribe */
+    xcb_keycode_t *XK_Return_KC = xcb_key_symbols_get_keycode(keysyms, XK_Return);
+    xcb_keycode_t *XK_d_KC = xcb_key_symbols_get_keycode(keysyms, XK_d);
 
-    /* // xcb_grab_button grab button from a window
-       xcb_grab_button(con, 0, window, XCB_EVENT_MASK_BUTTON_PRESS |
-                       XCB_EVENT_MASK_BUTTON_RELEASE, XCB_GRAB_MODE_ASYNC,
-    	               XCB_GRAB_MODE_ASYNC, window, XCB_NONE, 1, XCB_MOD_MASK_1); */
+    xcb_grab_key(con, 1, window, META_MASK, *XK_Return_KC, // meta+Return
+                 XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+    xcb_grab_key(con, 1, window, META_MASK, *XK_d_KC, // meta+d
+                 XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
 
     // sync to applay
     xcb_flush(con);
 
     while((ev = xcb_wait_for_event(con))) {
+        printf("event: %s\n", xcb_event_get_label(ev->response_type));
         switch (XCB_EVENT_RESPONSE_TYPE(ev)) {
-        case XCB_KEY_RELEASE: {
+        case XCB_KEY_PRESS: {
             xcb_key_press_event_t *kev = (xcb_key_press_event_t*) ev;
-
-            if (kev->state & XCB_MOD_MASK_CONTROL) {
-                printf("CTRL was released\n");
-            }
-            else if (kev->state & XCB_MOD_MASK_4) {
-                new_process("xterm");
-            }
-            else {
-                printf("Key key was released, but don't know which one\n");
-            }
+            key_press_process(kev);
+        }
+        case XCB_MAP_REQUEST: {
+            xcb_map_request_event_t *mrev = (xcb_map_request_event_t*) ev;
+            map_request_process(mrev);
         }
         }
     }
