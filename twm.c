@@ -99,6 +99,38 @@ int main (int argc, char **argv) {
     return 0;
 }
 
+
+void map_request_process(xcb_map_request_event_t *mrev) {
+    // masks to enable focus and mouse focus to window
+    uint32_t values[] = { XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_FOCUS_CHANGE };
+
+    xcb_map_window(con, mrev->window);
+    xcb_change_window_attributes(con, mrev->window, XCB_CW_EVENT_MASK, values);
+    xcb_flush(con);
+}
+
+void key_press_process(xcb_key_press_event_t *kev) {
+    /*
+      key->detail = key pressed
+      key->state = Mod combination
+     */
+    xcb_keycode_t keycode = kev->detail;
+    xcb_keysym_t keysym = xcb_key_symbols_get_keysym(keysyms, keycode, 0);
+
+    switch(kev->state) {
+    case META_MASK:
+        switch(keysym) {
+        case XK_Return:
+            new_process(TERMINAL);
+            break;
+        case XK_d:
+            new_process(APPLICATIONS_MENU);
+            break;
+        }
+        break;
+    }
+}
+
 int new_process(char* programm) {
     // create a new process based in programm name in PATH
     pid_t pid, sid;
