@@ -1,3 +1,5 @@
+#include "twm.h"
+
 #include <X11/keysym.h>
 #include <err.h>
 #include <stdint.h>
@@ -9,38 +11,6 @@
 #include <xcb/xcb_event.h>
 #include <xcb/xcb_keysyms.h>
 #include <xcb/xproto.h>
-
-#define LEN(x) sizeof(x) / sizeof(*x)
-
-#define TERMINAL "st"
-#define APPLICATIONS_MENU "dmenu_run"
-
-#define META_MASK XCB_MOD_MASK_4
-#define ALT_MASK XCB_MOD_MASK_1
-#define SHIFT_MASK XCB_MOD_MASK_SHIFT
-#define CONTROL XCB_MOD_MASK_CONTROL
-
-int run;
-unsigned short width_in_pixels, height_in_pixels;
-xcb_connection_t *con;
-xcb_screen_iterator_t screen;
-xcb_window_t window;
-xcb_generic_event_t *ev;
-xcb_key_symbols_t *keysyms;
-uint32_t masks[] = {
-    /* these only one window can have (the window manager).
-       if a error occurs to set, other window manager are running.*/
-    XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-    XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE};
-
-struct Keybind {
-  xcb_mod_mask_t modifiers;
-  xcb_keycode_t *key;
-} Keybind;
-
-int new_process(char *programm);
-void key_press_handler(xcb_key_press_event_t *ev);
-void map_request_handler(xcb_map_request_event_t *mrev);
 
 int main(int argc, char **argv) {
   printf("hello, twm starts\n");
@@ -64,19 +34,19 @@ int main(int argc, char **argv) {
      (or for some event types, inferiors of the window). */
   xcb_change_window_attributes(con, window, XCB_CW_EVENT_MASK, masks);
 
-  // remove all key events
+  // remove all key events to ensure
   xcb_ungrab_key(con, XCB_GRAB_ANY, window, XCB_MOD_MASK_ANY);
+
+  struct Keybind keybinds[] = {
+      {META_MASK,
+       xcb_key_symbols_get_keycode(keysyms, XK_Return)},        // meta+Return
+      {META_MASK, xcb_key_symbols_get_keycode(keysyms, XK_d)},  // meta+d
+      {META_MASK | SHIFT_MASK,
+       xcb_key_symbols_get_keycode(keysyms, XK_q)},  // meta+shift+q
+  };
 
   /* subscribe new keys.
      all keycodes needed to subscribe */
-  struct Keybind keybinds[] = {
-      {META_MASK,
-       xcb_key_symbols_get_keycode(keysyms, XK_Return)},       // meta+Return
-      {META_MASK, xcb_key_symbols_get_keycode(keysyms, XK_d)}, // meta+d
-      {META_MASK | SHIFT_MASK,
-       xcb_key_symbols_get_keycode(keysyms, XK_q)}, // meta+shift+q
-  };
-
   for (int k = 0; k < LEN(keybinds); ++k) {
     xcb_grab_key(con, 1, window, keybinds[k].modifiers, *keybinds[k].key,
                  XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
@@ -91,15 +61,15 @@ int main(int argc, char **argv) {
     printf("event: %s\n", xcb_event_get_label(ev->response_type));
 
     switch (XCB_EVENT_RESPONSE_TYPE(ev)) {
-    case XCB_KEY_PRESS: {
-      xcb_key_press_event_t *kev = (xcb_key_press_event_t *)ev;
-      key_press_handler(kev);
-    }
+      case XCB_KEY_PRESS: {
+        xcb_key_press_event_t *kev = (xcb_key_press_event_t *)ev;
+        key_press_handler(kev);
+      }
 
-    case XCB_MAP_REQUEST: {
-      xcb_map_request_event_t *mrev = (xcb_map_request_event_t *)ev;
-      map_request_handler(mrev);
-    }
+      case XCB_MAP_REQUEST: {
+        xcb_map_request_event_t *mrev = (xcb_map_request_event_t *)ev;
+        map_request_handler(mrev);
+      }
     }
   }
 
@@ -129,23 +99,23 @@ void key_press_handler(xcb_key_press_event_t *kev) {
   xcb_keysym_t keysym = xcb_key_symbols_get_keysym(keysyms, keycode, 0);
 
   switch (kev->state) {
-  // TODO refactor to generate from a config (2)
-  case META_MASK:
-    switch (keysym) {
-    case XK_Return:
-      new_process(TERMINAL);
+    // TODO refactor to generate from a config (2)
+    case META_MASK:
+      switch (keysym) {
+        case XK_Return:
+          new_process(TERMINAL);
+          break;
+        case XK_d:
+          new_process(APPLICATIONS_MENU);
+          break;
+      }
       break;
-    case XK_d:
-      new_process(APPLICATIONS_MENU);
-      break;
-    }
-    break;
 
-  case META_MASK | SHIFT_MASK:
-    switch (keysym) {
-    case XK_q:
-      run = 0;
-    }
+    case META_MASK | SHIFT_MASK:
+      switch (keysym) {
+        case XK_q:
+          run = 0;
+      }
   }
 }
 
@@ -168,7 +138,7 @@ int new_process(char *programm) {
       errx(1, "error to exec new program");
     }
     _exit(0);
-    wait(NULL); // this is realy needed?
+    wait(NULL);  // this is realy needed?
   }
   return 0;
 }
