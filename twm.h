@@ -1,7 +1,7 @@
-#include <stdint.h>           // for uint32_t
-#include <xcb/xcb.h>          // for xcb_connection_t, xcb_generic_event_t
-#include <xcb/xcb_keysyms.h>  // for xcb_key_symbols_t
-#include <xcb/xproto.h>       // for XCB_MOD_MASK_4, XCB_MOD_MASK_SHIFT, XCB...
+#include <stdint.h>
+#include <xcb/xcb.h>
+#include <xcb/xcb_keysyms.h>
+#include <xcb/xproto.h>
 
 #define LEN(x) sizeof(x) / sizeof(*x)
 #define TERMINAL "st"
@@ -12,11 +12,15 @@
 #define SHIFT_MASK XCB_MOD_MASK_SHIFT
 #define CONTROL XCB_MOD_MASK_CONTROL
 
-/* Border attributes 0xRRGGBB */
+/*
+ * Border attributes 0xRRGGBB
+ */
 #define BORDER_COLOR 0xFFFFFF
 #define BORDER_PIXEL 1
 
-/* TODO move to a singleton struct */
+/*
+ * !TODO move to a singleton struct
+ */
 int run;
 unsigned short window_width, window_height;
 xcb_connection_t *con;
@@ -25,13 +29,15 @@ xcb_window_t window;
 xcb_generic_event_t *ev;
 xcb_key_symbols_t *keysyms;
 
-/* Basic events masks to projet.
-   these events only one window can have (the window manager).
-   if a error occurs to set, other window manager are running.*/
-uint32_t masks[] = {XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT |
-                    XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-                    XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY |
-                    XCB_EVENT_MASK_PROPERTY_CHANGE};
+/*
+ * Basic events masks to projet.
+ * these events only one window can have (the window manager).
+ * if a error occurs to set, other window manager are running.
+ */
+uint32_t masks[] = {
+    XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+    XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE
+};
 
 struct Keybind {
   xcb_mod_mask_t modifiers;
