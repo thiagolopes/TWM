@@ -51,7 +51,8 @@ int main(int argc, char **argv)
 	 *    client is interested in for this window
 	 *    (or for some event types, inferiors of the window).
 	 */
-	xcb_change_window_attributes(con, window, XCB_CW_EVENT_MASK, masks);
+	xcb_change_window_attributes(con, window,
+				     XCB_CW_EVENT_MASK, window_masks);
 
 	/*
 	 * Remove all key events to ensure
@@ -86,15 +87,33 @@ int main(int argc, char **argv)
 			xcb_key_symbols_get_keycode(keysyms, XK_q)
 		},
 	};
+	struct ButtonAction button_actions[] = {
+		{
+			ALT_MASK,
+			XCB_BUTTON_MASK_1,
+		},{
+			ALT_MASK,
+			XCB_BUTTON_MASK_3,
+		},
+	};
 
         /*
-	* Subscribe new keys.
+	* Subscribe new keys/buttons.
         * All keycodes needed to subscribe
 	*/
 	for (int k = 0; k < LEN(keybinds); ++k) {
 		xcb_grab_key(con, 1, window,
 			     keybinds[k].modifiers, *keybinds[k].key,
 			     XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+	}
+	for (int b = 0; b <LEN(button_actions); ++b) {
+		struct ButtonAction *button = &button_actions[b];
+		xcb_grab_button(
+			con, 1, window,
+			(XCB_EVENT_MASK_BUTTON_1_MOTION |
+			 XCB_EVENT_MASK_BUTTON_3_MOTION),
+			XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, window,
+			XCB_NONE, button->cursor, button->modfiers);
 	}
 
 	/* Sync all buffers */
@@ -128,6 +147,11 @@ int main(int argc, char **argv)
 				(xcb_map_request_event_t *) ev;
 			map_request_handler(mrev);
 			break;
+		}
+		case XCB_MOTION_NOTIFY: {
+			xcb_motion_notify_event_t *mnev =
+				(xcb_motion_notify_event_t *) ev;
+			motion_notify_handler(mnev);
 		}}
 	}
 
@@ -140,10 +164,49 @@ int main(int argc, char **argv)
 	exit(0);
 }
 
-xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t draw)
+void motion_notify_handler(xcb_motion_notify_event_t *mnev)
+{
+        /*
+	 * This is not really a real notify, but just a hint that
+	 * the mouse pointer moved. This means we need to get the
+	 * current pointer position ourselves.
+	 */
+	xcb_query_pointer_reply_t *pointer;
+	pointer = query_pointer(mnev->root);
+
+	/*
+	 * !TODO Refactor to generate from a config (2)
+	 */
+
+ 	switch (mnev->state) {
+	case (ALT_MASK | XCB_EVENT_MASK_BUTTON_1_MOTION):
+		printf("moving...\n");
+		break;
+	case (ALT_MASK | XCB_EVENT_MASK_BUTTON_3_MOTION):
+		printf("resizing...\n");
+		break;
+	}
+
+	free(pointer);
+}
+
+xcb_query_pointer_reply_t *query_pointer(xcb_drawable_t window)
+{
+	xcb_query_pointer_cookie_t query_pointer =
+		xcb_query_pointer(con, window);
+	xcb_query_pointer_reply_t *pointer =
+		xcb_query_pointer_reply(con, query_pointer, NULL);
+
+	if (pointer == NULL) {
+		errx(1, "could get a pointer position");
+	}
+	return pointer;
+}
+
+xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t window)
 {
 	xcb_get_geometry_cookie_t cookie =
-		xcb_get_geometry(con, draw);
+		xcb_get_geometry(con, window);
 	xcb_get_geometry_reply_t *geometry =
 		xcb_get_geometry_reply(con, cookie, NULL);
 
