@@ -21,8 +21,8 @@ int main(int argc, char **argv) {
 
   screen = xcb_setup_roots_iterator(xcb_get_setup(con));
   window = screen.data->root;
-  width_in_pixels = screen.data->width_in_pixels;
-  height_in_pixels = screen.data->height_in_pixels;
+  window_width = screen.data->width_in_pixels;
+  window_height = screen.data->height_in_pixels;
   keysyms = xcb_key_symbols_alloc(con);
 
   /* TODO add atoms here */
@@ -60,17 +60,27 @@ int main(int argc, char **argv) {
   run = 1;
   while (run) {
     ev = xcb_wait_for_event(con);
-    printf("event: %s\n", xcb_event_get_label(ev->response_type));
+    if (ev->response_type == 0) {
+      xcb_generic_error_t *error = (xcb_generic_error_t *) ev;
+      printf("event-error-code: %d, minor_code: %d, major_mode %d\n",
+	     error->error_code, error->minor_code, error->major_code);
+    }
+    else {
+      printf("event: %s\n", xcb_event_get_label(ev->response_type));
+    }
+
 
     switch (XCB_EVENT_RESPONSE_TYPE(ev)) {
       case XCB_KEY_PRESS: {
         xcb_key_press_event_t *kev = (xcb_key_press_event_t *)ev;
         key_press_handler(kev);
+	break;
       }
 
       case XCB_MAP_REQUEST: {
         xcb_map_request_event_t *mrev = (xcb_map_request_event_t *)ev;
         map_request_handler(mrev);
+	break;
       }
     }
   }
@@ -86,15 +96,19 @@ void map_request_handler(xcb_map_request_event_t *mrev) {
   /* events the client is interested in for this window */
   xcb_event_mask_t events_masks[] = {XCB_EVENT_MASK_ENTER_WINDOW |
                                      XCB_EVENT_MASK_FOCUS_CHANGE};
-  xcb_config_window_t window_configs_masks[] = {/* XCB_CONFIG_WINDOW_X | */
-                                                /* XCB_CONFIG_WINDOW_Y | */
+  xcb_config_window_t window_configs_masks[] = {XCB_CONFIG_WINDOW_X |
+		                                XCB_CONFIG_WINDOW_Y |
                                                 XCB_CONFIG_WINDOW_BORDER_WIDTH};
 
-  int window_configs_values[] = {1};
+  uint32_t window_configs_values[] = {window_width / 2,
+                                      window_height /2,
+				      BORDER_PIXEL};
+  int border_color[] = {BORDER_COLOR};
 
   xcb_map_window(con, mrev->window);
-  xcb_change_window_attributes(con, mrev->window, XCB_CW_EVENT_MASK, events_masks);
   xcb_configure_window(con, mrev->window, *window_configs_masks, window_configs_values);
+  xcb_change_window_attributes(con, mrev->window, XCB_CW_BORDER_PIXEL, border_color);
+  xcb_change_window_attributes(con, mrev->window, XCB_CW_EVENT_MASK, events_masks);
   xcb_flush(con);
 }
 
@@ -146,7 +160,6 @@ int new_process(char *programm) {
       errx(1, "error to exec new program");
     }
     _exit(0);
-    wait(NULL);  // this is realy needed?
   }
   return 0;
 }

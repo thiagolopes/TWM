@@ -12,12 +12,13 @@
 #define SHIFT_MASK XCB_MOD_MASK_SHIFT
 #define CONTROL XCB_MOD_MASK_CONTROL
 
-/* Color attributes 0xRRGGBB */
+/* Border attributes 0xRRGGBB */
 #define BORDER_COLOR 0xFFFFFF
+#define BORDER_PIXEL 1
 
 /* TODO move to a singleton struct */
 int run;
-unsigned short width_in_pixels, height_in_pixels;
+unsigned short window_width, window_height;
 xcb_connection_t *con;
 xcb_screen_iterator_t screen;
 xcb_window_t window;
