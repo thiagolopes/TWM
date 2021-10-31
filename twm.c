@@ -39,16 +39,18 @@ int main(int argc, char **argv) {
 
   struct Keybind keybinds[] = {
       {META_MASK,
-       xcb_key_symbols_get_keycode(keysyms, XK_Return)},        // meta+Return
-      {META_MASK, xcb_key_symbols_get_keycode(keysyms, XK_d)},  // meta+d
+       xcb_key_symbols_get_keycode(keysyms, XK_Return)}, // meta+Return
+      {META_MASK,
+       xcb_key_symbols_get_keycode(keysyms, XK_d)},      // meta+d
       {META_MASK | SHIFT_MASK,
-       xcb_key_symbols_get_keycode(keysyms, XK_q)},  // meta+shift+q
+       xcb_key_symbols_get_keycode(keysyms, XK_q)},      // meta+shift+q
   };
 
   /* subscribe new keys.
      all keycodes needed to subscribe */
   for (int k = 0; k < LEN(keybinds); ++k) {
-    xcb_grab_key(con, 1, window, keybinds[k].modifiers, *keybinds[k].key,
+    xcb_grab_key(con, 1, window,
+		 keybinds[k].modifiers, *keybinds[k].key,
                  XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
   }
 
@@ -91,10 +93,8 @@ void map_request_handler(xcb_map_request_event_t *mrev) {
   int window_configs_values[] = {1};
 
   xcb_map_window(con, mrev->window);
-  xcb_change_window_attributes(con, mrev->window, XCB_CW_EVENT_MASK,
-                               events_masks);
-  xcb_configure_window(con, mrev->window, *window_configs_masks,
-                       window_configs_values);
+  xcb_change_window_attributes(con, mrev->window, XCB_CW_EVENT_MASK, events_masks);
+  xcb_configure_window(con, mrev->window, *window_configs_masks, window_configs_values);
   xcb_flush(con);
 }
 
