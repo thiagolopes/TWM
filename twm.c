@@ -100,7 +100,6 @@ int main(int argc, char **argv)
 			       xcb_event_get_label(ev->response_type));
 		}
 
-
 		switch (XCB_EVENT_RESPONSE_TYPE(ev)) {
 		case XCB_KEY_PRESS: {
 			xcb_key_press_event_t *kev =
@@ -114,8 +113,7 @@ int main(int argc, char **argv)
 				(xcb_map_request_event_t *) ev;
 			map_request_handler(mrev);
 			break;
-		}
-		}
+		}}
 	}
 
 	/*
