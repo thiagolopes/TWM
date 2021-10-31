@@ -7,6 +7,8 @@
 #define SHIFT_MASK XCB_MOD_MASK_SHIFT
 #define CONTROL XCB_MOD_MASK_CONTROL
 
+#define BORDER_COLOR 0xFFFFFF
+
 int run;
 unsigned short width_in_pixels, height_in_pixels;
 xcb_connection_t *con;
