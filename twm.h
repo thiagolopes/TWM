@@ -19,9 +19,16 @@
 #include <xcb/xproto.h>
 
 #define LEN(x) sizeof(x) / sizeof(*x)
+
+/*
+ * Applications configuration
+ */
 #define TERMINAL "st"
 #define APPLICATIONS_MENU "dmenu_run"
 
+/*
+ * Masks name helpers
+ */
 #define META_MASK XCB_MOD_MASK_4
 #define ALT_MASK XCB_MOD_MASK_1
 #define SHIFT_MASK XCB_MOD_MASK_SHIFT
