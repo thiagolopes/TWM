@@ -7,8 +7,10 @@
 #define SHIFT_MASK XCB_MOD_MASK_SHIFT
 #define CONTROL XCB_MOD_MASK_CONTROL
 
+/* Color attributes 0xRRGGBB */
 #define BORDER_COLOR 0xFFFFFF
 
+/* TODO move to a singleton struct */
 int run;
 unsigned short width_in_pixels, height_in_pixels;
 xcb_connection_t *con;
@@ -16,11 +18,14 @@ xcb_screen_iterator_t screen;
 xcb_window_t window;
 xcb_generic_event_t *ev;
 xcb_key_symbols_t *keysyms;
-uint32_t masks[] = {
-    /* these events only one window can have (the window manager).
-       if a error occurs to set, other window manager are running.*/
-    XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-    XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE};
+
+/* Basic events masks to projet.
+   these events only one window can have (the window manager).
+   if a error occurs to set, other window manager are running.*/
+uint32_t masks[] = {XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT |
+                    XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+                    XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY |
+                    XCB_EVENT_MASK_PROPERTY_CHANGE};
 
 struct Keybind {
   xcb_mod_mask_t modifiers;
