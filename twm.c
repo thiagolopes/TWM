@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
                  XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
   }
 
-  /* sync to applay */
+  /* sync all buffers */
   xcb_flush(con);
 
   run = 1;
@@ -113,7 +113,8 @@ void map_request_handler(xcb_map_request_event_t *mrev) {
                                                 XCB_CONFIG_WINDOW_BORDER_WIDTH};
 
   /* Initially all the windows will be mapped on center screen. */
-  /* TODO implement some cascade windows */
+  /* TODO implement some cascade windows position*/
+  /* IDEIA remember the last time size before close*/
   uint32_t window_configs_values[] = {(window_width / 2) - (geometry->width / 2),
                                       (window_height / 2) - (geometry->height / 2),
 				      BORDER_PIXEL};
@@ -123,6 +124,7 @@ void map_request_handler(xcb_map_request_event_t *mrev) {
   xcb_configure_window(con, mrev->window, *window_configs_masks, window_configs_values);
   xcb_change_window_attributes(con, mrev->window, XCB_CW_BORDER_PIXEL, border_color);
   xcb_change_window_attributes(con, mrev->window, XCB_CW_EVENT_MASK, events_masks);
+  /* sync all */
   xcb_flush(con);
 }
 
