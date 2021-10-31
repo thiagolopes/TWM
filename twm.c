@@ -220,8 +220,13 @@ xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t window)
 void map_request_handler(xcb_map_request_event_t *mrev)
 {
 	/*
-	 * Events the client is interested in for this window
+	 * When a window as to ve mapped (draw) to screen it does:
+	 *     The window is mapped.
+	 *     Some window configs is apply: position and border width
+	 *     Some attributes is apply: event and border color attributes
 	 */
+
+
 	xcb_get_geometry_reply_t *geometry = get_geometry(mrev->window);
 	xcb_event_mask_t events_masks[] = {
 		XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_FOCUS_CHANGE
@@ -233,10 +238,9 @@ void map_request_handler(xcb_map_request_event_t *mrev)
 	};
 
 	/*
-	 * Initially all the windows will be mapped on center screen. *\/
+	 * Initially all the windows is mapped on center screen. *\/
 	 * !TODO Implement some cascade windows position*\/
-         * !IDEIA Remember the last time size before close,
-	 * plus between sessions
+         * !IDEIA Remember the last time size before close, between sessions
 	 */
 	uint32_t window_configs_values[] = {
 		(window_width / 2) - (geometry->width / 2),
@@ -256,6 +260,7 @@ void map_request_handler(xcb_map_request_event_t *mrev)
 	 * Sync all buffers
 	 */
 	xcb_flush(con);
+	free(geometry);
 }
 
 void key_press_handler(xcb_key_press_event_t *kev)
