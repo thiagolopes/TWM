@@ -56,16 +56,24 @@ xcb_key_symbols_t *keysyms;
  * these events only one window can have (the window manager).
  * if a error occurs to set, other window manager are running.
  */
-uint32_t masks[] = {
-    XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-    XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE
+uint32_t window_masks[] = {
+	XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+	XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE
 };
 
 struct Keybind {
-  xcb_mod_mask_t modifiers;
-  xcb_keycode_t *key;
-} Keybind;
+	xcb_mod_mask_t modifiers;
+	xcb_keycode_t *key;
+};
+
+struct ButtonAction {
+	xcb_mod_mask_t modfiers;
+	xcb_cursor_t cursor;
+};
 
 int new_process(char *programm);
 void key_press_handler(xcb_key_press_event_t *ev);
 void map_request_handler(xcb_map_request_event_t *mrev);
+void motion_notify_handler(xcb_motion_notify_event_t *mnev);
+xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t window);
+xcb_query_pointer_reply_t *query_pointer(xcb_drawable_t window);
