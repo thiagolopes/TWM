@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 	keysyms = xcb_key_symbols_alloc(con);
 
 	/*
-	 * !TODO add atoms here
+	 * !TODO Add atoms here
 	 */
 
 	/*
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	xcb_change_window_attributes(con, window, XCB_CW_EVENT_MASK, masks);
 
 	/*
-	 * remove all key events to ensure
+	 * Remove all key events to ensure
 	 */
 	xcb_ungrab_key(con, XCB_GRAB_ANY, window, XCB_MOD_MASK_ANY);
 
@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 	struct Keybind keybinds[] = {
 		{
 			/*
-			 * meta+Return
+			 * Meta+Return
 			 */
 			META_MASK,
 			xcb_key_symbols_get_keycode(keysyms, XK_Return)
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 
 		{
 			/*
-			 * meta+d
+			 * Meta+d
 			 */
 			META_MASK,
 			xcb_key_symbols_get_keycode(keysyms, XK_d)
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
 
 		{
 			/*
-			 * meta+shift+q
+			 * Meta+Shift+q
 			 */
 			META_MASK | SHIFT_MASK,
 			xcb_key_symbols_get_keycode(keysyms, XK_q)
@@ -73,8 +73,8 @@ int main(int argc, char **argv)
 	};
 
         /*
-	* subscribe new keys.
-        * all keycodes needed to subscribe
+	* Subscribe new keys.
+        * All keycodes needed to subscribe
 	*/
 	for (int k = 0; k < LEN(keybinds); ++k) {
 		xcb_grab_key(con, 1, window,
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 			     XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
 	}
 
-	/* sync all buffers */
+	/* Sync all buffers */
 	xcb_flush(con);
 
 	run = 1;
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 	}
 
 	/*
-	 * end wm, disconect server
+	 * End wm, disconect server
 	 */
 	xcb_key_symbols_free(keysyms);
 	xcb_disconnect(con);
@@ -142,7 +142,7 @@ xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t draw)
 void map_request_handler(xcb_map_request_event_t *mrev)
 {
 	/*
-	 * events the client is interested in for this window
+	 * Events the client is interested in for this window
 	 */
 	xcb_get_geometry_reply_t *geometry = get_geometry(mrev->window);
 	xcb_event_mask_t events_masks[] = {
@@ -156,8 +156,8 @@ void map_request_handler(xcb_map_request_event_t *mrev)
 
 	/*
 	 * Initially all the windows will be mapped on center screen. *\/
-	 * !TODO implement some cascade windows position*\/
-         * !IDEIA remember the last time size before close -
+	 * !TODO Implement some cascade windows position*\/
+         * !IDEIA Remember the last time size before close,
 	 * plus between sessions
 	 */
 	uint32_t window_configs_values[] = {
@@ -175,7 +175,7 @@ void map_request_handler(xcb_map_request_event_t *mrev)
 	xcb_change_window_attributes(con, mrev->window,
 				     XCB_CW_EVENT_MASK, events_masks);
 	/*
-	 * sync all buffers
+	 * Sync all buffers
 	 */
 	xcb_flush(con);
 }
@@ -190,7 +190,7 @@ void key_press_handler(xcb_key_press_event_t *kev)
 	xcb_keysym_t keysym = xcb_key_symbols_get_keysym(keysyms, keycode, 0);
 
 	/*
-	 * !TODO refactor to generate from a config (2)
+	 * !TODO Refactor to generate from a config (2)
 	 */
 	switch (kev->state) {
 	case META_MASK:
@@ -214,7 +214,7 @@ void key_press_handler(xcb_key_press_event_t *kev)
 int new_process(char *programm)
 {
 	/*
-	 * create a new process based in programm name in PATH
+	 * Create a new process based in programm name in PATH
 	 */
 	pid_t pid, sid;
 	pid = fork();
@@ -223,7 +223,7 @@ int new_process(char *programm)
 		errx(1, "error to get fork: %s, pid: %d", programm, getpid());
 	} else if (pid == 0) {
 		/*
-		 * child process
+		 * Child process
 		 */
 		sid = setsid();
 		if (sid == -1) {
