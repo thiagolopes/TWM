@@ -92,16 +92,30 @@ int main(int argc, char **argv) {
   exit(0);
 }
 
+xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t draw) {
+  xcb_get_geometry_cookie_t cookie = xcb_get_geometry(con, draw);
+  xcb_get_geometry_reply_t *geometry = xcb_get_geometry_reply(con, cookie, NULL);
+
+  if (geometry == NULL) {
+    errx(1, "could get a window geoemtry");
+  }
+  return geometry;
+}
+
+
 void map_request_handler(xcb_map_request_event_t *mrev) {
   /* events the client is interested in for this window */
+  xcb_get_geometry_reply_t *geometry = get_geometry(mrev->window);
   xcb_event_mask_t events_masks[] = {XCB_EVENT_MASK_ENTER_WINDOW |
                                      XCB_EVENT_MASK_FOCUS_CHANGE};
   xcb_config_window_t window_configs_masks[] = {XCB_CONFIG_WINDOW_X |
 		                                XCB_CONFIG_WINDOW_Y |
                                                 XCB_CONFIG_WINDOW_BORDER_WIDTH};
 
-  uint32_t window_configs_values[] = {window_width / 2,
-                                      window_height /2,
+  /* Initially all the windows will be mapped on center screen. */
+  /* TODO implement some cascade windows */
+  uint32_t window_configs_values[] = {(window_width / 2) - (geometry->width / 2),
+                                      (window_height / 2) - (geometry->height / 2),
 				      BORDER_PIXEL};
   int border_color[] = {BORDER_COLOR};
 
