@@ -1,3 +1,8 @@
+#include <stdint.h>           // for uint32_t
+#include <xcb/xcb.h>          // for xcb_connection_t, xcb_generic_event_t
+#include <xcb/xcb_keysyms.h>  // for xcb_key_symbols_t
+#include <xcb/xproto.h>       // for XCB_MOD_MASK_4, XCB_MOD_MASK_SHIFT, XCB...
+
 #define LEN(x) sizeof(x) / sizeof(*x)
 #define TERMINAL "st"
 #define APPLICATIONS_MENU "dmenu_run"

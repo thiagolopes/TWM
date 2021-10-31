@@ -1,6 +1,5 @@
 #include <X11/keysym.h>
 #include <err.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -26,7 +25,7 @@ int main(int argc, char **argv) {
   height_in_pixels = screen.data->height_in_pixels;
   keysyms = xcb_key_symbols_alloc(con);
 
-  // TODO add atoms
+  /* TODO add atoms here */
 
   /* :XCB_CW_EVENT_MASK:
      The event-mask defines which events the
@@ -34,9 +33,10 @@ int main(int argc, char **argv) {
      (or for some event types, inferiors of the window). */
   xcb_change_window_attributes(con, window, XCB_CW_EVENT_MASK, masks);
 
-  // remove all key events to ensure
+  /* remove all key events to ensure */
   xcb_ungrab_key(con, XCB_GRAB_ANY, window, XCB_MOD_MASK_ANY);
 
+  /* TODO maybe move these to a configuration */
   struct Keybind keybinds[] = {
       {META_MASK,
        xcb_key_symbols_get_keycode(keysyms, XK_Return)}, // meta+Return
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
                  XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
   }
 
-  // sync to applay
+  /* sync to applay */
   xcb_flush(con);
 
   run = 1;
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  // end wm, disconect server
+  /* end wm, disconect server */
   xcb_key_symbols_free(keysyms);
   xcb_disconnect(con);
   printf("byebye!\n");
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 }
 
 void map_request_handler(xcb_map_request_event_t *mrev) {
-  // events the client is interested in for this window
+  /* events the client is interested in for this window */
   xcb_event_mask_t events_masks[] = {XCB_EVENT_MASK_ENTER_WINDOW |
                                      XCB_EVENT_MASK_FOCUS_CHANGE};
   xcb_config_window_t window_configs_masks[] = {/* XCB_CONFIG_WINDOW_X | */
@@ -107,7 +107,7 @@ void key_press_handler(xcb_key_press_event_t *kev) {
   xcb_keysym_t keysym = xcb_key_symbols_get_keysym(keysyms, keycode, 0);
 
   switch (kev->state) {
-    // TODO refactor to generate from a config (2)
+    /* TODO refactor to generate from a config (2) */
     case META_MASK:
       switch (keysym) {
         case XK_Return:
@@ -128,15 +128,15 @@ void key_press_handler(xcb_key_press_event_t *kev) {
 }
 
 int new_process(char *programm) {
-  // create a new process based in programm name in PATH
+  /* create a new process based in programm name in PATH */
   pid_t pid, sid;
   pid = fork();
 
   if (pid == -1) {
-    // error
+    /* error */
     errx(1, "error to get fork: %s, pid: %d", programm, getpid());
   } else if (pid == 0) {
-    // child process
+    /* child process */
     sid = setsid();
     if (sid == -1) {
       errx(1, "error to set sid, pid: %d", pid);
