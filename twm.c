@@ -1,5 +1,3 @@
-#include "twm.h"
-
 #include <X11/keysym.h>
 #include <err.h>
 #include <stdint.h>
@@ -11,6 +9,8 @@
 #include <xcb/xcb_event.h>
 #include <xcb/xcb_keysyms.h>
 #include <xcb/xproto.h>
+
+#include "twm.h"
 
 int main(int argc, char **argv) {
   printf("hello, twm starts\n");
@@ -81,12 +81,20 @@ int main(int argc, char **argv) {
 }
 
 void map_request_handler(xcb_map_request_event_t *mrev) {
-  // masks to enable focus and mouse focus to window
-  uint32_t values[] = {XCB_EVENT_MASK_ENTER_WINDOW |
-                       XCB_EVENT_MASK_FOCUS_CHANGE};
+  // events the client is interested in for this window
+  xcb_event_mask_t events_masks[] = {XCB_EVENT_MASK_ENTER_WINDOW |
+                                     XCB_EVENT_MASK_FOCUS_CHANGE};
+  xcb_config_window_t window_configs_masks[] = {/* XCB_CONFIG_WINDOW_X | */
+                                                /* XCB_CONFIG_WINDOW_Y | */
+                                                XCB_CONFIG_WINDOW_BORDER_WIDTH};
+
+  int window_configs_values[] = {1};
 
   xcb_map_window(con, mrev->window);
-  xcb_change_window_attributes(con, mrev->window, XCB_CW_EVENT_MASK, values);
+  xcb_change_window_attributes(con, mrev->window, XCB_CW_EVENT_MASK,
+                               events_masks);
+  xcb_configure_window(con, mrev->window, *window_configs_masks,
+                       window_configs_values);
   xcb_flush(con);
 }
 
