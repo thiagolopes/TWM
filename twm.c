@@ -63,38 +63,13 @@ int main(int argc, char **argv)
 	 * !TODO maybe move these to a configuration
 	 */
 	struct Keybind keybinds[] = {
-		{
-			/*
-			 * Meta+Return
-			 */
-			META_MASK,
-			xcb_key_symbols_get_keycode(keysyms, XK_Return)
-		},
-
-		{
-			/*
-			 * Meta+d
-			 */
-			META_MASK,
-			xcb_key_symbols_get_keycode(keysyms, XK_d)
-		},
-
-		{
-			/*
-			 * Meta+Shift+q
-			 */
-			META_MASK | SHIFT_MASK,
-			xcb_key_symbols_get_keycode(keysyms, XK_q)
-		},
+		{META_MASK, XK_Return},
+		{META_MASK, XK_d},
+		{META_MASK | SHIFT_MASK, XK_q},
 	};
 	struct ButtonAction button_actions[] = {
-		{
-			ALT_MASK,
-			XCB_BUTTON_MASK_1,
-		},{
-			ALT_MASK,
-			XCB_BUTTON_MASK_3,
-		},
+		{ALT_MASK, XCB_BUTTON_MASK_1},
+		{ALT_MASK, XCB_BUTTON_MASK_3},
 	};
 
         /*
@@ -102,8 +77,9 @@ int main(int argc, char **argv)
         * All keycodes needed to subscribe
 	*/
 	for (int k = 0; k < LEN(keybinds); ++k) {
+		xcb_keycode_t *keycode = xcb_key_symbols_get_keycode(keysyms, keybinds[k].key);
 		xcb_grab_key(con, 1, window,
-			     keybinds[k].modifiers, *keybinds[k].key,
+			     keybinds[k].modifiers, *keycode,
 			     XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
 	}
 	for (int b = 0; b <LEN(button_actions); ++b) {
