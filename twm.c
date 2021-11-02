@@ -117,7 +117,6 @@ int main(int argc, char **argv)
 			key_press_handler(kev);
 			break;
 		}
-
 		case XCB_MAP_REQUEST: {
 			xcb_map_request_event_t *mrev =
 				(xcb_map_request_event_t *) ev;
@@ -179,14 +178,14 @@ xcb_query_pointer_reply_t *query_pointer(xcb_drawable_t window)
 	return pointer;
 }
 
-xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t window)
+xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t window, bool exit)
 {
 	xcb_get_geometry_cookie_t cookie =
 		xcb_get_geometry(con, window);
 	xcb_get_geometry_reply_t *geometry =
 		xcb_get_geometry_reply(con, cookie, NULL);
 
-	if (geometry == NULL) {
+	if (geometry == NULL && exit) {
 		errx(1, "could get a window geoemtry");
 	}
 	return geometry;
@@ -203,7 +202,7 @@ void map_request_handler(xcb_map_request_event_t *mrev)
 	 */
 
 
-	xcb_get_geometry_reply_t *geometry = get_geometry(mrev->window);
+	xcb_get_geometry_reply_t *geometry = get_geometry(mrev->window, true);
 	xcb_event_mask_t events_masks[] = {
 		XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_FOCUS_CHANGE
 	};
@@ -261,7 +260,6 @@ void key_press_handler(xcb_key_press_event_t *kev)
 			new_process(APPLICATIONS_MENU);
 			break;
 		}
-
 	case META_MASK | SHIFT_MASK:
 		switch (keysym) {
 		case XK_q:
