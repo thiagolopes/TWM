@@ -15,6 +15,7 @@
 
 #include <X11/keysym.h>
 #include <err.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
@@ -25,6 +26,8 @@
 #include <xcb/xproto.h>
 
 #include "twm.h"
+
+Pointer pointer_history = {0, 0};
 
 int main(int argc, char **argv)
 {
@@ -92,15 +95,30 @@ int main(int argc, char **argv)
 			XCB_NONE, button->cursor, button->modfiers);
 	}
 
+	xcb_grab_pointer(con, 1, window,
+			 XCB_EVENT_MASK_POINTER_MOTION,
+			 XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC,
+			 XCB_NONE, XCB_NONE, XCB_CURRENT_TIME);
+
 	/* Sync all buffers */
 	xcb_flush(con);
+
+
+        /*
+         * !TODO the wm set mouse to the middle of the screen;
+	 * and add this to first pointer_history
+	 */
+	xcb_query_pointer_reply_t *pointer = query_pointer(window);
+	pointer_history.x = pointer->root_x;
+	pointer_history.y = pointer->root_y;
+	free(pointer);
 
 	run = 1;
 	while (run) {
 		ev = xcb_wait_for_event(con);
 		if (ev->response_type == 0) {
 			xcb_generic_error_t *error = (xcb_generic_error_t *) ev;
-			printf("event-error-code: %d, "
+			printf("event_error: %d, "
 			       "minor_code: %d, major_mode %d\n",
 			       error->error_code,
 			       error->minor_code, error->major_code);
@@ -141,28 +159,47 @@ int main(int argc, char **argv)
 
 void motion_notify_handler(xcb_motion_notify_event_t *mnev)
 {
-        /*
-	 * This is not really a real notify, but just a hint that
-	 * the mouse pointer moved. This means we need to get the
-	 * current pointer position ourselves.
-	 */
-	xcb_query_pointer_reply_t *pointer;
-	pointer = query_pointer(mnev->root);
+	unsigned int values[2];
+	Pointer pointer = {mnev->event_x, mnev->event_y};
+	xcb_get_geometry_reply_t *geometry = get_geometry(mnev->child, false);
 
 	/*
-	 * !TODO Refactor to generate from a config (2)
+	 * no window grab
 	 */
+	if (geometry == NULL) {
+		goto exit;
+	}
+
 
  	switch (mnev->state) {
 	case (ALT_MASK | XCB_EVENT_MASK_BUTTON_1_MOTION):
-		printf("moving...\n");
+		values[0] = geometry->x +
+			(pointer.x - pointer_history.x);
+		values[1] = geometry->y +
+			(pointer.y - pointer_history.y);
+
+		xcb_configure_window(con, mnev->child,
+				     XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
+				     values);
 		break;
 	case (ALT_MASK | XCB_EVENT_MASK_BUTTON_3_MOTION):
-		printf("resizing...\n");
+		values[0] = geometry->width +
+			(pointer.x - pointer_history.x);
+		values[1] = geometry->height +
+			(pointer.y - pointer_history.y);
+
+		xcb_configure_window(con, mnev->child,
+				     XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
+				     values);
 		break;
 	}
 
-	free(pointer);
+        exit:
+	pointer_history.x = pointer.x;
+	pointer_history.y = pointer.y;
+
+	xcb_flush(con);
+	free(geometry);
 }
 
 xcb_query_pointer_reply_t *query_pointer(xcb_drawable_t window)
