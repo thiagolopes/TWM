@@ -62,12 +62,12 @@ int main(int argc, char **argv)
 	/*
 	 * !TODO maybe move these to a configuration
 	 */
-	struct Keybind keybinds[] = {
+	Keybind keybinds[] = {
 		{META_MASK, XK_Return},
 		{META_MASK, XK_d},
 		{META_MASK | SHIFT_MASK, XK_q},
 	};
-	struct ButtonAction button_actions[] = {
+	ButtonAction button_actions[] = {
 		{ALT_MASK, XCB_BUTTON_MASK_1},
 		{ALT_MASK, XCB_BUTTON_MASK_3},
 	};
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 			     XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
 	}
 	for (int b = 0; b <LEN(button_actions); ++b) {
-		struct ButtonAction *button = &button_actions[b];
+		ButtonAction *button = &button_actions[b];
 		xcb_grab_button(
 			con, 1, window,
 			(XCB_EVENT_MASK_BUTTON_1_MOTION |

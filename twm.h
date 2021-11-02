@@ -61,19 +61,24 @@ uint32_t window_masks[] = {
 	XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE
 };
 
-struct Keybind {
+typedef struct {
 	xcb_mod_mask_t modifiers;
-	xcb_keycode_t *key;
-};
+	int key;
+} Keybind;
 
-struct ButtonAction {
+typedef struct {
 	xcb_mod_mask_t modfiers;
 	xcb_cursor_t cursor;
-};
+} ButtonAction;
+
+typedef struct {
+	unsigned int x;
+	unsigned int y;
+} Pointer;
 
 int new_process(char *programm);
 void key_press_handler(xcb_key_press_event_t *ev);
 void map_request_handler(xcb_map_request_event_t *mrev);
 void motion_notify_handler(xcb_motion_notify_event_t *mnev);
-xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t window);
+xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t window, bool exit);
 xcb_query_pointer_reply_t *query_pointer(xcb_drawable_t window);
