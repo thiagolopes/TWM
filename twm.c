@@ -75,9 +75,9 @@ int main(int argc, char **argv)
 		{ALT_MASK, XCB_BUTTON_MASK_3},
 	};
 
-        /*
+	/*
 	* Subscribe new keys/buttons.
-        * All keycodes needed to subscribe
+	* All keycodes needed to subscribe
 	*/
 	for (int k = 0; k < LEN(keybinds); ++k) {
 		xcb_keycode_t *keycode = xcb_key_symbols_get_keycode(keysyms, keybinds[k].key);
@@ -104,8 +104,8 @@ int main(int argc, char **argv)
 	xcb_flush(con);
 
 
-        /*
-         * !TODO the wm set mouse to the middle of the screen;
+	/*
+	 * !TODO the wm set mouse to the middle of the screen;
 	 * and add this to first pointer_history
 	 */
 	xcb_query_pointer_reply_t *pointer = query_pointer(window);
@@ -171,7 +171,7 @@ void motion_notify_handler(xcb_motion_notify_event_t *mnev)
 	}
 
 
- 	switch (mnev->state) {
+	switch (mnev->state) {
 	case (ALT_MASK | XCB_EVENT_MASK_BUTTON_1_MOTION):
 		values[0] = geometry->x +
 			(pointer.x - pointer_history.x);
@@ -194,7 +194,7 @@ void motion_notify_handler(xcb_motion_notify_event_t *mnev)
 		break;
 	}
 
-        exit:
+	exit:
 	pointer_history.x = pointer.x;
 	pointer_history.y = pointer.y;
 
@@ -252,7 +252,7 @@ void map_request_handler(xcb_map_request_event_t *mrev)
 	/*
 	 * Initially all the windows is mapped on center screen. *\/
 	 * !TODO Implement some cascade windows position*\/
-         * !IDEIA Remember the last time size before close, between sessions
+	 * !IDEIA Remember the last time size before close, between sessions
 	 */
 	uint32_t window_configs_values[] = {
 		(window_width / 2) - (geometry->width / 2),
