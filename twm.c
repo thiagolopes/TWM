@@ -365,11 +365,13 @@ new_process(char *programm)
 			errx(1, "error to set sid, pid: %d", pid);
 		}
 
-		if (execlp(programm, programm, NULL) == -1) {
+		int has_exec = execlp(programm, programm, NULL);
+		if (has_exec == -1) {
 			errx(1, "error to exec new program");
 		}
 		_exit(0);
 	}
+	wait(NULL);
 	return 0;
 }
 
