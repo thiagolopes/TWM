@@ -209,6 +209,9 @@ main(int argc, char **argv)
 	 * End wm, disconect server
 	 */
 	xcb_key_symbols_free(keysyms);
+	xcb_ewmh_connection_wipe(ewmh);
+	free(ewmh);
+
 	xcb_disconnect(con);
 	printf("byebye!\n");
 	exit(0);
@@ -409,8 +412,6 @@ xcb_window_t
 	xcb_change_window_attributes_checked(con, *window, XCB_CW_EVENT_MASK,
 					     checked_attributes);
 
-	xcb_ewmh_connection_wipe(ewmh);
-	free(ewmh);
 	free(geometry);
 	return window;
 }
