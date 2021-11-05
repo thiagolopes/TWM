@@ -1,5 +1,5 @@
 CFLAGS?=-Wall -g -O0 -std=c99 -pedantic
-LIBS?=-lX11 -lxcb -lxcb-keysyms -lxcb-util
+LIBS?=-lX11 -lxcb -lxcb-keysyms -lxcb-util -lxcb-ewmh
 
 
 compile:

@@ -23,6 +23,7 @@
 #include <xcb/xcb.h>
 #include <xcb/xcb_event.h>
 #include <xcb/xcb_keysyms.h>
+#include <xcb/xcb_ewmh.h>
 #include <xcb/xproto.h>
 
 #include "twm.h"
@@ -37,6 +38,7 @@ xcb_screen_iterator_t screen;
 xcb_window_t window;
 xcb_generic_event_t *ev;
 xcb_key_symbols_t *keysyms;
+xcb_ewmh_connection_t *ewmh;
 
 Pointer pointer_history = {0, 0};
 Cord center_screen;
@@ -64,6 +66,39 @@ main(int argc, char **argv)
 	/*
 	 * !TODO Add atoms here
 	 */
+	ewmh = calloc(1, sizeof(xcb_ewmh_connection_t)); /* allocate with zero */
+	if (ewmh == NULL) {
+		errx(1, "cannot allocate ewmh");
+	}
+	xcb_intern_atom_cookie_t *ewmh_cookie = xcb_ewmh_init_atoms(con, ewmh);
+	uint8_t has_init_atoms = xcb_ewmh_init_atoms_replies(ewmh, ewmh_cookie, NULL);
+	if (has_init_atoms == false) {
+		errx(1, "cannot init atoms");
+	}
+
+	xcb_ewmh_set_wm_name(ewmh, window, 3, "twm");
+	xcb_ewmh_set_wm_pid(ewmh, window, getpid());
+
+        xcb_atom_t net_atoms[] = {
+		ewmh->_NET_SUPPORTED,
+		ewmh->_NET_CLIENT_LIST,
+		ewmh->_NET_WM_STRUT,
+		ewmh->_NET_WM_STRUT_PARTIAL,
+		ewmh->_NET_WM_STATE_FULLSCREEN,
+		ewmh->_NET_WM_STATE,
+		ewmh->_NET_SUPPORTING_WM_CHECK,
+		ewmh->_NET_ACTIVE_WINDOW,
+		ewmh->_NET_NUMBER_OF_DESKTOPS,
+		ewmh->_NET_CURRENT_DESKTOP,
+		ewmh->_NET_DESKTOP_GEOMETRY,
+		ewmh->_NET_DESKTOP_VIEWPORT,
+		ewmh->_NET_WORKAREA,
+		ewmh->_NET_SHOWING_DESKTOP,
+		ewmh->_NET_CLOSE_WINDOW,
+		ewmh->_NET_WM_DESKTOP,
+		ewmh->_NET_WM_WINDOW_TYPE,
+	};
+	xcb_ewmh_set_supported(ewmh, 0, LEN(net_atoms), net_atoms);
 
 	/*
 	 * XCB_CW_EVENT_MASK
