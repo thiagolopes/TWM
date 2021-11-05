@@ -30,7 +30,9 @@
 Pointer pointer_history = {0, 0};
 Cord center_screen;
 
-int main(int argc, char **argv)
+
+int
+main(int argc, char **argv)
 {
 	printf("hello, twm starts\n");
 
@@ -162,7 +164,9 @@ int main(int argc, char **argv)
 	exit(0);
 }
 
-void motion_notify_handler(xcb_motion_notify_event_t *mnev)
+
+void
+motion_notify_handler(xcb_motion_notify_event_t *mnev)
 {
 	unsigned int values[2];
 	Pointer pointer = {mnev->event_x, mnev->event_y};
@@ -207,7 +211,9 @@ void motion_notify_handler(xcb_motion_notify_event_t *mnev)
 	free(geometry);
 }
 
-xcb_query_pointer_reply_t *query_pointer(xcb_drawable_t window)
+
+xcb_query_pointer_reply_t
+*query_pointer(xcb_drawable_t window)
 {
 	xcb_query_pointer_cookie_t query_pointer =
 		xcb_query_pointer(con, window);
@@ -220,7 +226,9 @@ xcb_query_pointer_reply_t *query_pointer(xcb_drawable_t window)
 	return pointer;
 }
 
-xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t window, bool exit)
+
+xcb_get_geometry_reply_t
+*get_geometry(xcb_drawable_t window, bool exit)
 {
 	xcb_get_geometry_cookie_t cookie =
 		xcb_get_geometry(con, window);
@@ -234,7 +242,8 @@ xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t window, bool exit)
 }
 
 
-void map_request_handler(xcb_map_request_event_t *mrev)
+void
+map_request_handler(xcb_map_request_event_t *mrev)
 {
 	/*
 	 * When a window as to ve mapped (draw) to screen it does:
@@ -280,7 +289,9 @@ void map_request_handler(xcb_map_request_event_t *mrev)
 	free(geometry);
 }
 
-void key_press_handler(xcb_key_press_event_t *kev)
+
+void
+key_press_handler(xcb_key_press_event_t *kev)
 {
 	/*
 	 * @detail = Key pressed
@@ -310,7 +321,9 @@ void key_press_handler(xcb_key_press_event_t *kev)
 	}
 }
 
-int new_process(char *programm)
+
+int
+new_process(char *programm)
 {
 	/*
 	 * Create a new process based in programm name in PATH
