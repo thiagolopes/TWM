@@ -242,17 +242,15 @@ xcb_get_geometry_reply_t
 }
 
 
+/*
+ * When a window as to ve mapped (draw) to screen it does:
+ *     The window is mapped.
+ *     Some window configs is apply: position and border width
+ *     Some attributes is apply: event and border color attributes
+ */
 void
 map_request_handler(xcb_map_request_event_t *mrev)
 {
-	/*
-	 * When a window as to ve mapped (draw) to screen it does:
-	 *     The window is mapped.
-	 *     Some window configs is apply: position and border width
-	 *     Some attributes is apply: event and border color attributes
-	 */
-
-
 	xcb_get_geometry_reply_t *geometry = get_geometry(mrev->window, true);
 	xcb_event_mask_t events_masks[] = {
 		XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_FOCUS_CHANGE
@@ -290,13 +288,13 @@ map_request_handler(xcb_map_request_event_t *mrev)
 }
 
 
+/*
+ * @detail = Key pressed
+ * @state = Mod combination
+ */
 void
 key_press_handler(xcb_key_press_event_t *kev)
 {
-	/*
-	 * @detail = Key pressed
-	 * @state = Mod combination
-	 */
 	xcb_keycode_t keycode = kev->detail;
 	xcb_keysym_t keysym = xcb_key_symbols_get_keysym(keysyms, keycode, 0);
 
@@ -322,12 +320,12 @@ key_press_handler(xcb_key_press_event_t *kev)
 }
 
 
+/*
+ * Create a new process based in programm name in PATH
+ */
 int
 new_process(char *programm)
 {
-	/*
-	 * Create a new process based in programm name in PATH
-	 */
 	pid_t pid, sid;
 	pid = fork();
 
