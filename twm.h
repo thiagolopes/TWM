@@ -38,6 +38,7 @@
  * Border attributes 0xRRGGBB
  */
 #define BORDER_COLOR 0xFFFFFF
+#define BORDER_COLOR_UNFOCUS 0xFF10FF
 #define BORDER_PIXEL 1
 
 /*
@@ -75,6 +76,11 @@ typedef struct {
 	unsigned int x;
 	unsigned int y;
 } Pointer;
+
+typedef struct {
+	unsigned int x;
+	unsigned int y;
+} Cord;
 
 int new_process(char *programm);
 void key_press_handler(xcb_key_press_event_t *ev);

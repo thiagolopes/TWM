@@ -28,6 +28,7 @@
 #include "twm.h"
 
 Pointer pointer_history = {0, 0};
+Cord center_screen;
 
 int main(int argc, char **argv)
 {
@@ -43,6 +44,9 @@ int main(int argc, char **argv)
 	window_width = screen.data->width_in_pixels;
 	window_height = screen.data->height_in_pixels;
 	keysyms = xcb_key_symbols_alloc(con);
+
+	center_screen.x = window_width / 2;
+	center_screen.y = window_height / 2;
 
 	/*
 	 * !TODO Add atoms here
@@ -109,8 +113,9 @@ int main(int argc, char **argv)
 	 * and add this to first pointer_history
 	 */
 	xcb_query_pointer_reply_t *pointer = query_pointer(window);
-	pointer_history.x = pointer->root_x;
-	pointer_history.y = pointer->root_y;
+	xcb_warp_pointer(con, XCB_NONE, window, 0, 0, 0 ,0, center_screen.x, center_screen.y);
+	pointer_history.x = center_screen.x;
+	pointer_history.y = center_screen.y;
 	free(pointer);
 
 	run = 1;
@@ -255,8 +260,8 @@ void map_request_handler(xcb_map_request_event_t *mrev)
 	 * !IDEIA Remember the last time size before close, between sessions
 	 */
 	uint32_t window_configs_values[] = {
-		(window_width / 2) - (geometry->width / 2),
-		(window_height / 2) - (geometry->height / 2),
+		center_screen.x - (geometry->width / 2),
+		center_screen.y - (geometry->height / 2),
 		BORDER_PIXEL
 	};
 	int border_color[] = {BORDER_COLOR};
