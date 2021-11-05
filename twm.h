@@ -42,25 +42,10 @@
 #define BORDER_PIXEL 1
 
 /*
- * !TODO move to a singleton struct
- */
-int run;
-unsigned short window_width, window_height;
-xcb_connection_t *con;
-xcb_screen_iterator_t screen;
-xcb_window_t window;
-xcb_generic_event_t *ev;
-xcb_key_symbols_t *keysyms;
-
-/*
  * Basic events masks to projet.
  * these events only one window can have (the window manager).
  * if a error occurs to set, other window manager are running.
  */
-uint32_t window_masks[] = {
-	XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-	XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE
-};
 
 typedef struct {
 	xcb_mod_mask_t modifiers;

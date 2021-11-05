@@ -27,6 +27,17 @@
 
 #include "twm.h"
 
+/*
+ * !TODO move to a singleton struct
+ */
+int run;
+unsigned short window_width, window_height;
+xcb_connection_t *con;
+xcb_screen_iterator_t screen;
+xcb_window_t window;
+xcb_generic_event_t *ev;
+xcb_key_symbols_t *keysyms;
+
 Pointer pointer_history = {0, 0};
 Cord center_screen;
 
@@ -60,6 +71,10 @@ main(int argc, char **argv)
 	 *    client is interested in for this window
 	 *    (or for some event types, inferiors of the window).
 	 */
+	xcb_event_mask_t window_masks[] = {
+		XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+		XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE
+	};
 	xcb_change_window_attributes(con, window,
 				     XCB_CW_EVENT_MASK, window_masks);
 
