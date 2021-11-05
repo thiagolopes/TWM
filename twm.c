@@ -349,3 +349,9 @@ new_process(char *programm)
 	}
 	return 0;
 }
+
+
+xcb_window_t
+*setup_window(xcb_window_t *window) {
+	return window;
+}
