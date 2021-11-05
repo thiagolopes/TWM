@@ -37,8 +37,8 @@
 /*
  * Border attributes 0xRRGGBB
  */
-#define BORDER_COLOR 0xFFFFFF
-#define BORDER_COLOR_UNFOCUS 0xFF10FF
+#define BORDER_COLOR 0x6e760f /* inverse color (bar) #170f76 */
+#define BORDER_COLOR_UNFOCUS 0x363908
 #define BORDER_PIXEL 1
 
 /*

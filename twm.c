@@ -251,40 +251,12 @@ xcb_get_geometry_reply_t
 void
 map_request_handler(xcb_map_request_event_t *mrev)
 {
-	xcb_get_geometry_reply_t *geometry = get_geometry(mrev->window, true);
-	xcb_event_mask_t events_masks[] = {
-		XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_FOCUS_CHANGE
-	};
-	xcb_config_window_t window_configs_masks[] = {
-		XCB_CONFIG_WINDOW_X |
-		XCB_CONFIG_WINDOW_Y |
-		XCB_CONFIG_WINDOW_BORDER_WIDTH
-	};
-
-	/*
-	 * Initially all the windows is mapped on center screen. *\/
-	 * !TODO Implement some cascade windows position*\/
-	 * !IDEIA Remember the last time size before close, between sessions
-	 */
-	uint32_t window_configs_values[] = {
-		center_screen.x - (geometry->width / 2),
-		center_screen.y - (geometry->height / 2),
-		BORDER_PIXEL
-	};
-	int border_color[] = {BORDER_COLOR};
-
+	setup_window(&mrev->window);
 	xcb_map_window(con, mrev->window);
-	xcb_configure_window(con, mrev->window,
-			     *window_configs_masks, window_configs_values);
-	xcb_change_window_attributes(con, mrev->window,
-				     XCB_CW_BORDER_PIXEL, border_color);
-	xcb_change_window_attributes(con, mrev->window,
-				     XCB_CW_EVENT_MASK, events_masks);
 	/*
 	 * Sync all buffers
 	 */
 	xcb_flush(con);
-	free(geometry);
 }
 
 
@@ -351,5 +323,42 @@ new_process(char *programm)
 
 xcb_window_t
 *setup_window(xcb_window_t *window) {
+	xcb_get_geometry_reply_t *geometry = get_geometry(*window, true);
+
+	xcb_event_mask_t events_masks[] = {
+		XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_FOCUS_CHANGE
+	};
+	xcb_config_window_t window_configs_masks[] = {
+		XCB_CONFIG_WINDOW_X |
+		XCB_CONFIG_WINDOW_Y |
+		XCB_CONFIG_WINDOW_BORDER_WIDTH
+	};
+
+	/*
+	 * !TODO Implement some cascade windows position*\/
+	 * !IDEIA Remember the last time size before close, between sessions
+	 */
+	uint32_t window_configs_values[] = {
+		center_screen.x - (geometry->width / 2),
+		center_screen.y - (geometry->height / 2),
+		BORDER_PIXEL
+	};
+	int border_color[] = {BORDER_COLOR};
+
+	xcb_event_mask_t checked_attributes[] = {XCB_EVENT_MASK_ENTER_WINDOW};
+
+
+	xcb_configure_window(con, *window,
+			     *window_configs_masks, window_configs_values);
+
+	xcb_change_window_attributes(con, *window,
+				     XCB_CW_BORDER_PIXEL, border_color);
+	xcb_change_window_attributes(con, *window,
+				     XCB_CW_EVENT_MASK, events_masks);
+
+	xcb_change_window_attributes_checked(con, *window, XCB_CW_EVENT_MASK,
+					     checked_attributes);
+
+	free(geometry);
 	return window;
 }
