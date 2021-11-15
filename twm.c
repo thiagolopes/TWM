@@ -66,12 +66,16 @@ main(int argc, char **argv)
 	/*
 	 * !TODO Add atoms here
 	 */
-	ewmh = calloc(1, sizeof(xcb_ewmh_connection_t)); /* allocate with zero */
+	ewmh = calloc(1, sizeof(xcb_ewmh_connection_t));
 	if (ewmh == NULL) {
 		errx(1, "cannot allocate ewmh");
 	}
-	xcb_intern_atom_cookie_t *ewmh_cookie = xcb_ewmh_init_atoms(con, ewmh);
-	uint8_t has_init_atoms = xcb_ewmh_init_atoms_replies(ewmh, ewmh_cookie, NULL);
+
+	xcb_intern_atom_cookie_t *ewmh_cookie =
+		xcb_ewmh_init_atoms(con, ewmh);
+	uint8_t has_init_atoms =
+		xcb_ewmh_init_atoms_replies(ewmh, ewmh_cookie, NULL);
+
 	if (has_init_atoms == false) {
 		errx(1, "cannot init atoms");
 	}
@@ -107,8 +111,10 @@ main(int argc, char **argv)
 	 *    (or for some event types, inferiors of the window).
 	 */
 	xcb_event_mask_t window_masks[] = {
-		XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-		XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY | XCB_EVENT_MASK_PROPERTY_CHANGE
+		XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT |
+		XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+		XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY |
+		XCB_EVENT_MASK_PROPERTY_CHANGE
 	};
 	xcb_change_window_attributes(con, window,
 				     XCB_CW_EVENT_MASK, window_masks);
@@ -165,7 +171,8 @@ main(int argc, char **argv)
 	 * and add this to first pointer_history
 	 */
 	xcb_query_pointer_reply_t *pointer = query_pointer(window);
-	xcb_warp_pointer(con, XCB_NONE, window, 0, 0, 0 ,0, center_screen.x, center_screen.y);
+	xcb_warp_pointer(con, XCB_NONE, window,
+			 0, 0, 0 ,0, center_screen.x, center_screen.y);
 	pointer_history.x = center_screen.x;
 	pointer_history.y = center_screen.y;
 	free(pointer);
@@ -235,13 +242,13 @@ motion_notify_handler(xcb_motion_notify_event_t *mnev)
 
 	switch (mnev->state) {
 	case (ALT_MASK | XCB_EVENT_MASK_BUTTON_1_MOTION):
-		values[0] = geometry->x +
-			(pointer.x - pointer_history.x);
+		values[0] = geometry->x + (pointer.x - pointer_history.x);
 		values[1] = geometry->y +
 			(pointer.y - pointer_history.y);
 
 		xcb_configure_window(con, mnev->child,
-				     XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
+				     XCB_CONFIG_WINDOW_X |
+				     XCB_CONFIG_WINDOW_Y,
 				     values);
 		break;
 	case (ALT_MASK | XCB_EVENT_MASK_BUTTON_3_MOTION):
@@ -251,7 +258,8 @@ motion_notify_handler(xcb_motion_notify_event_t *mnev)
 			(pointer.y - pointer_history.y);
 
 		xcb_configure_window(con, mnev->child,
-				     XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
+				     XCB_CONFIG_WINDOW_WIDTH |
+				     XCB_CONFIG_WINDOW_HEIGHT,
 				     values);
 		break;
 	}
@@ -296,7 +304,7 @@ xcb_get_geometry_reply_t
 
 
 /*
- * When a window as to ve mapped (draw) to screen it does:
+ * When a window as mapped (draw) to screen it does:
  *     The window is mapped.
  *     Some window configs is apply: position and border width
  *     Some attributes is apply: event and border color attributes
