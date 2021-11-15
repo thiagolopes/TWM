@@ -67,6 +67,16 @@ typedef struct {
 	unsigned int y;
 } Cord;
 
+typedef struct {
+	xcb_drawable_t id;
+	int16_t x, y;
+	uint16_t width, height;
+	int16_t toggle_x, toggle_y;
+	uint16_t max_width, max_height, min_width,
+		min_height, width_inc, height_inc,
+		base_width, base_height;
+} Window;
+
 int new_process(char *programm);
 void key_press_handler(xcb_key_press_event_t *ev);
 void map_request_handler(xcb_map_request_event_t *mrev);
