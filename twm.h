@@ -71,6 +71,7 @@ int new_process(char *programm);
 void key_press_handler(xcb_key_press_event_t *ev);
 void map_request_handler(xcb_map_request_event_t *mrev);
 void motion_notify_handler(xcb_motion_notify_event_t *mnev);
+void configure_request_handler(xcb_configure_request_event_t *crev);
 xcb_get_geometry_reply_t *get_geometry(xcb_drawable_t window, bool exit);
 xcb_query_pointer_reply_t *query_pointer(xcb_drawable_t window);
 xcb_window_t *setup_window(xcb_window_t *window);
