@@ -458,3 +458,17 @@ xcb_window_t
 
 	return window;
 }
+
+Windows
+*init_windows()
+{
+	Windows *windows;
+	Window *window_array;
+	int initial_len = 2;
+
+	windows->len = 0;
+	windows->max_len = 2;
+	windows->window_array = calloc(initial_len, sizeof(Window));
+
+	return windows;
+}

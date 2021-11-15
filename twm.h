@@ -79,7 +79,7 @@ typedef struct {
 
 typedef struct {
 	int len, max_len;
-	Window *windows[];
+	Window *window_array;
 } Windows;
 
 Windows *init_windows();
