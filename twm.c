@@ -20,13 +20,18 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <xcb/xcb.h>
 #include <xcb/xcb_event.h>
-#include <xcb/xcb_keysyms.h>
 #include <xcb/xcb_ewmh.h>
+#include <xcb/xcb.h>
+#include <xcb/xcb_icccm.h>
+#include <xcb/xcb_keysyms.h>
 #include <xcb/xproto.h>
 
+#define DEBUG 1
+
+#include "debug.h"
 #include "twm.h"
+
 
 /*
  * !TODO move to a singleton struct
@@ -182,14 +187,14 @@ main(int argc, char **argv)
 		ev = xcb_wait_for_event(con);
 		if (ev->response_type == 0) {
 			xcb_generic_error_t *error = (xcb_generic_error_t *) ev;
-			printf("event_error: %d, "
-			       "minor_code: %d, major_mode %d\n",
-			       error->error_code,
-			       error->minor_code, error->major_code);
+			debug("event_error: %d, "
+			      "minor_code: %d, major_mode %d",
+			      error->error_code,
+			      error->minor_code, error->major_code);
 		}
 		else {
-			printf("event: %s\n",
-			       xcb_event_get_label(ev->response_type));
+			debug("event: %s",
+			      xcb_event_get_label(ev->response_type));
 		}
 
 		switch (XCB_EVENT_RESPONSE_TYPE(ev)) {
