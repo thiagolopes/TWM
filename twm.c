@@ -384,7 +384,6 @@ new_process(char *programm)
 		}
 		_exit(0);
 	}
-	wait(NULL);
 	return 0;
 }
 
