@@ -210,6 +210,12 @@ main(int argc, char **argv)
 			map_request_handler(mrev);
 			break;
 		}
+		case XCB_CONFIGURE_REQUEST: {
+			xcb_configure_request_event_t * crev =
+				(xcb_configure_request_event_t *) ev;
+			configure_request_handler(crev);
+			break;
+		}
 		case XCB_MOTION_NOTIFY: {
 			xcb_motion_notify_event_t *mnev =
 				(xcb_motion_notify_event_t *) ev;
@@ -227,6 +233,24 @@ main(int argc, char **argv)
 	xcb_disconnect(con);
 	printf("byebye!\n");
 	exit(0);
+}
+
+
+void
+configure_request_handler(xcb_configure_request_event_t *crev)
+{
+	xcb_size_hints_t hints;
+	xcb_get_property_cookie_t cookie_hints =
+		xcb_icccm_get_wm_normal_hints_unchecked(
+			con, crev->window);
+	xcb_icccm_get_wm_normal_hints_reply(
+		con, cookie_hints, &hints, NULL);
+
+	if (hints.flags & XCB_ICCCM_SIZE_HINT_BASE_SIZE) {
+		debug("has base - height: %i width: %i",
+		      hints.base_height, hints.base_width);
+	}
+	return;
 }
 
 
