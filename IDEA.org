@@ -1,0 +1,16 @@
+* Keybinds Emacs like
+
+Like in emacs:
+
+| Annotation | Keybinds     |
+|------------+--------------|
+| ~M-<key>~  | ~Alt+<key>~  |
+| ~C-<key>~  | ~Ctrl+<key>~ |
+
+Also like in emacs, each key interacte with one type if element:
+
+~M~ interact with workspaces
+~C~ interact with windows
+
+So:
+~M-1~ means "workspace one" and ~C-1~ means "window one".
