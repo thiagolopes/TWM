@@ -342,11 +342,28 @@ void
 map_request_handler(xcb_map_request_event_t *mrev)
 {
 	setup_window(&mrev->window);
-	xcb_map_window(con, mrev->window);
+	xcb_get_geometry_reply_t
+		*geometry = get_geometry(mrev->window, true);
+	xcb_config_window_t window_configs_masks[] = {
+		XCB_CONFIG_WINDOW_X |
+		XCB_CONFIG_WINDOW_Y |
+		XCB_CONFIG_WINDOW_BORDER_WIDTH
+	};
 	/*
-	 * Sync all buffers
+	 * TODO move to pointer
 	 */
+	uint32_t window_configs_values[] = {
+		center_screen.x - (geometry->width / 2),
+		center_screen.y - (geometry->height / 2),
+		BORDER_PIXEL
+	};
+	xcb_configure_window(con, mrev->window,
+			     *window_configs_masks,
+			     window_configs_values);
+
+	xcb_map_window(con, mrev->window);
 	xcb_flush(con);
+	free(geometry);
 }
 
 
@@ -414,33 +431,22 @@ new_process(char *programm)
 
 xcb_window_t
 *setup_window(xcb_window_t *window) {
-	xcb_get_geometry_reply_t *geometry = get_geometry(*window, true);
-
 	xcb_event_mask_t events_masks[] = {
 		XCB_EVENT_MASK_ENTER_WINDOW | XCB_EVENT_MASK_FOCUS_CHANGE
 	};
-	xcb_config_window_t window_configs_masks[] = {
-		XCB_CONFIG_WINDOW_X |
-		XCB_CONFIG_WINDOW_Y |
-		XCB_CONFIG_WINDOW_BORDER_WIDTH
+	xcb_icccm_wm_state_t data_property[] = {
+		XCB_ICCCM_WM_STATE_NORMAL,
+		XCB_NONE,
 	};
 
-	/*
-	 * !TODO Implement some cascade windows position*\/
-	 * !IDEIA Remember the last time size before close, between sessions
-	 */
-	uint32_t window_configs_values[] = {
-		center_screen.x - (geometry->width / 2),
-		center_screen.y - (geometry->height / 2),
-		BORDER_PIXEL
-	};
+	xcb_change_save_set(con, XCB_SET_MODE_INSERT, *window);
+	xcb_change_property(con, XCB_PROP_MODE_REPLACE, *window,
+			    ewmh->_NET_WM_STATE, ewmh->_NET_WM_STATE,
+			    32, 2, data_property);
+
 	int border_color[] = {BORDER_COLOR};
-
 	xcb_event_mask_t checked_attributes[] = {XCB_EVENT_MASK_ENTER_WINDOW};
 
-
-	xcb_configure_window(con, *window,
-			     *window_configs_masks, window_configs_values);
 
 	xcb_change_window_attributes(con, *window,
 				     XCB_CW_BORDER_PIXEL, border_color);
@@ -450,6 +456,5 @@ xcb_window_t
 	xcb_change_window_attributes_checked(con, *window, XCB_CW_EVENT_MASK,
 					     checked_attributes);
 
-	free(geometry);
 	return window;
 }
