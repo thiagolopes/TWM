@@ -29,7 +29,8 @@
 
 #define DEBUG 1
 
-#include "debug.h"
+#include "log.h"
+#include "log.c"
 #include "twm.h"
 
 
@@ -52,7 +53,7 @@ Cord center_screen;
 int
 main(int argc, char **argv)
 {
-	printf("hello, twm starts\n");
+	log_info("hello, twm starts\n");
 
 	con = xcb_connect(NULL, NULL);
 	if (xcb_connection_has_error(con)) {
@@ -187,14 +188,14 @@ main(int argc, char **argv)
 		ev = xcb_wait_for_event(con);
 		if (ev->response_type == 0) {
 			xcb_generic_error_t *error = (xcb_generic_error_t *) ev;
-			debug("event_error: %d, "
-			      "minor_code: %d, major_mode %d",
-			      error->error_code,
-			      error->minor_code, error->major_code);
+			log_debug("event_error: %d, "
+				  "minor_code: %d, major_mode %d",
+				  error->error_code,
+				  error->minor_code, error->major_code);
 		}
 		else {
-			debug("event: %s",
-			      xcb_event_get_label(ev->response_type));
+			log_debug("event: %s",
+				  xcb_event_get_label(ev->response_type));
 		}
 
 		switch (XCB_EVENT_RESPONSE_TYPE(ev)) {
@@ -231,7 +232,7 @@ main(int argc, char **argv)
 	free(ewmh);
 
 	xcb_disconnect(con);
-	printf("byebye!\n");
+	log_info("byebye!\n");
 	exit(0);
 }
 
@@ -247,8 +248,8 @@ configure_request_handler(xcb_configure_request_event_t *crev)
 		con, cookie_hints, &hints, NULL);
 
 	if (hints.flags & XCB_ICCCM_SIZE_HINT_BASE_SIZE) {
-		debug("has base - height: %i width: %i",
-		      hints.base_height, hints.base_width);
+		log_debug("has base - height: %i width: %i",
+			  hints.base_height, hints.base_width);
 	}
 	return;
 }
